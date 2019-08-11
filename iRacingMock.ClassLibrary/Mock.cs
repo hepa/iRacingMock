@@ -3,6 +3,7 @@ using iRacingSdkWrapper.Broadcast;
 using iRSDKSharp;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -13,14 +14,19 @@ namespace iRacingMock.ClassLibrary
 {
     public class Mock : ISdkWrapper
     {
-        private string[] _file;
+        private string _filePath;
+        private string[] _lines;
+        private int _counter = 1;
 
         private string[] _headers;
         private Dictionary<int, Dictionary<string, string>> _telemetryInfos;
+        private readonly SynchronizationContext _context;
 
-        public Mock(string[] file)
+        public Mock(string filePath)
         {
-            _file = file;
+            _context = SynchronizationContext.Current;
+
+            _filePath = filePath;
             _telemetryInfos = new Dictionary<int, Dictionary<string, string>>();
             this.context = SynchronizationContext.Current;
             this.EventRaiseType = EventRaiseTypes.CurrentThread;
@@ -40,11 +46,11 @@ namespace iRacingMock.ClassLibrary
 
         public EventRaiseTypes EventRaiseType { get; set; }
 
-        public bool IsRunning => throw new NotImplementedException();
+        public bool IsRunning { get; set; }
 
-        public bool IsConnected => throw new NotImplementedException();
+        public bool IsConnected { get; set; }
 
-        public double TelemetryUpdateFrequency { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public double TelemetryUpdateFrequency { get; set; }
         public int ConnectSleepTime { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public int DriverId => throw new NotImplementedException();
@@ -68,7 +74,14 @@ namespace iRacingMock.ClassLibrary
 
         public object GetData(string headerName)
         {
-            return DateTime.Now;
+            if (_telemetryInfos[_counter].ContainsKey(headerName))
+            {
+                return _telemetryInfos[_counter][headerName];
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public ITelemetryValue<T> GetTelemetryValue<T>(string name)
@@ -83,21 +96,44 @@ namespace iRacingMock.ClassLibrary
 
         public void Start()
         {
-            StartRandom();
-            //ReadHeaders();
+            //StartRandom();
+            ReadFile();
+            ReadHeaders();
 
-            //for (int i = 1; i < _file.Length; i++)
-            //{
-            //    var telemetryInfo = new Dictionary<string, string>();
-            //    var telemetryInfos = SplitLine(_file[i]);
-            //    for (int j = 0; j < telemetryInfos.Length; j++)
-            //    {
-            //        telemetryInfo.Add(_headers[j], telemetryInfos[j]);
-            //    }
-            //    _telemetryInfos.Add(i, telemetryInfo);
-            //}
+            for (int i = 1; i < _lines.Length; i++)
+            {
+                var telemetryInfo = new Dictionary<string, string>();
+                var telemetryInfos = SplitLine(_lines[i]);
+                for (int j = 0; j < telemetryInfos.Length; j++)
+                {
+                    if (!telemetryInfo.ContainsKey(_headers[j]))
+                    {
+                        telemetryInfo.Add(_headers[j], telemetryInfos[j]);
+                    }                        
+                }
+                _telemetryInfos.Add(i, telemetryInfo);
+            }
 
-            //WriteOut();
+            IsRunning = true;
+            IsConnected = true;
+            
+
+            MainLoop();
+        }
+
+        private void ReadFile()
+        {
+            _lines = File.ReadAllLines(_filePath);
+        }
+
+        private async Task MainLoop()
+        {            
+            while (true)
+            {                
+                RaiseEvent(OnTelemetryUpdated, new TelemetryUpdatedEventArgs(new MockTelemetryInfo(_telemetryInfos, _counter), DateTime.Now.Ticks));
+                _counter++;
+                await Task.Delay(2);
+            }
         }
 
         public void StartRandom()
@@ -107,7 +143,7 @@ namespace iRacingMock.ClassLibrary
 
             while (true)
             {
-                OnTelemetryUpdated(new TelemetryUpdatedEventArgs(new MockTelemetryInfo() { Speed = new MockTelemetryValue<float>() { Value = 100 } }, DateTime.Now.Ticks));
+                //OnTelemetryUpdated(new TelemetryUpdatedEventArgs(new MockTelemetryInfo() { Speed = new MockTelemetryValue<float>() { Value = 100 } }, DateTime.Now.Ticks));
                 Thread.Sleep(33);
             }
         }
@@ -119,7 +155,7 @@ namespace iRacingMock.ClassLibrary
 
         private void ReadHeaders()
         {
-            _headers = SplitLine(_file[0]);
+            _headers = SplitLine(_lines[0]);
         }
 
         private string[] SplitLine(string s)
@@ -164,6 +200,11 @@ namespace iRacingMock.ClassLibrary
         {
             var handler = this.Connected;
             if (handler != null) handler(this, e);
+        }
+
+        TelemetryValue<T> ISdkWrapper.GetTelemetryValue<T>(string name)
+        {
+            throw new NotImplementedException();
         }
     }
 }

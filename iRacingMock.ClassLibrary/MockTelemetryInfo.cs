@@ -10,6 +10,15 @@ namespace iRacingMock.ClassLibrary
 {
     class MockTelemetryInfo : ITelemetryInfo
     {
+        private Dictionary<int, Dictionary<string, string>> _telemetryInfos;
+        private int _count;
+
+        public MockTelemetryInfo(Dictionary<int, Dictionary<string, string>> telemetryInfos, int count)
+        {
+            _telemetryInfos = telemetryInfos;
+            _count = count;
+        }
+
         public ITelemetryValue<float> MGUKDeployAdapt {get; set;}
 
         public ITelemetryValue<float> MGUKDeployFixed {get; set;}
@@ -34,7 +43,11 @@ namespace iRacingMock.ClassLibrary
 
         public ITelemetryValue<double> SessionTime {get; set;}
 
-        public ITelemetryValue<int> SessionNum {get; set;}
+        public ITelemetryValue<int> SessionNum
+        {
+            get { return new MockTelemetryValue<int>() { Value = Convert.ToInt32(_telemetryInfos[_count][nameof(SessionNum)]) }; }
+            set { }
+        }
 
         public ITelemetryValue<SessionStates> SessionState {get; set;}
 
@@ -74,19 +87,37 @@ namespace iRacingMock.ClassLibrary
 
         public ITelemetryValue<float> SteeringWheelAngle {get; set;}
 
-        public ITelemetryValue<float> Throttle {get; set;}
+        public ITelemetryValue<float> Throttle {
+            get { return new MockTelemetryValue<float>() { Value = Convert.ToSingle(_telemetryInfos[_count][nameof(Throttle)]) }; }
+            set { }
+        }
 
-        public ITelemetryValue<float> Brake {get; set;}
+        public ITelemetryValue<float> Brake {
+            get { return new MockTelemetryValue<float>() { Value = Convert.ToSingle(_telemetryInfos[_count][nameof(Brake)]) }; }
+            set { }
+        }
 
         public ITelemetryValue<float> Clutch {get; set;}
 
-        public ITelemetryValue<int> Gear {get; set;}
+        public ITelemetryValue<int> Gear {
+            get { return new MockTelemetryValue<int>() { Value = Convert.ToInt32(_telemetryInfos[_count][nameof(Gear)]) }; }
+            set { }
+        }
 
-        public ITelemetryValue<float> RPM {get; set;}
+        public ITelemetryValue<float> RPM {
+            get { return new MockTelemetryValue<float>() { Value = Convert.ToSingle(_telemetryInfos[_count][nameof(RPM)]) }; }
+            set { }
+        }
 
-        public ITelemetryValue<int> Lap {get; set;}
+        public ITelemetryValue<int> Lap {
+            get { return new MockTelemetryValue<int>() { Value = Convert.ToInt32(_telemetryInfos[_count][nameof(Lap)]) }; }
+            set { }
+        }
 
-        public ITelemetryValue<float> LapDist {get; set;}
+        public ITelemetryValue<float> LapDist {
+            get { return new MockTelemetryValue<float>() { Value = Convert.ToSingle(_telemetryInfos[_count][nameof(LapDist)]) }; }
+            set { }
+        }
 
         public ITelemetryValue<float> LapDistPct {get; set;}
 
@@ -104,7 +135,11 @@ namespace iRacingMock.ClassLibrary
 
         public ITelemetryValue<float> YawRate {get; set;}
 
-        public ITelemetryValue<float> Speed {get; set;}
+        public ITelemetryValue<float> Speed
+        {
+            get { return new MockTelemetryValue<float>() {Value = Convert.ToSingle(_telemetryInfos[_count][nameof(Speed)])}; }
+            set { }
+        }
 
         public ITelemetryValue<float> VelocityX {get; set;}
 
@@ -126,7 +161,10 @@ namespace iRacingMock.ClassLibrary
 
         public ITelemetryValue<CameraState> CamCameraState {get; set;}
 
-        public ITelemetryValue<bool> IsOnTrack {get; set;}
+        public ITelemetryValue<bool> IsOnTrack {
+            get { return new MockTelemetryValue<bool>() { Value = Convert.ToBoolean(_telemetryInfos[_count][nameof(IsOnTrack)]) }; }
+            set { }
+        }
 
         public ITelemetryValue<bool> IsInGarage {get; set;}
 
@@ -136,9 +174,15 @@ namespace iRacingMock.ClassLibrary
 
         public ITelemetryValue<float> ShiftIndicatorPct {get; set;}
 
-        public ITelemetryValue<EngineWarning> EngineWarnings {get; set;}
+        public ITelemetryValue<EngineWarning> EngineWarnings {
+            get { return new MockTelemetryValue<EngineWarning>() { Value = new EngineWarning(Convert.ToInt32(_telemetryInfos[_count][nameof(EngineWarnings)])) }; }
+            set { }
+        }
 
-        public ITelemetryValue<float> FuelLevel {get; set;}
+        public ITelemetryValue<float> FuelLevel {
+            get { return new MockTelemetryValue<float>() { Value = Convert.ToSingle(_telemetryInfos[_count][nameof(FuelLevel)]) }; }
+            set { }
+        }
 
         public ITelemetryValue<float> FuelLevelPct {get; set;}
 
@@ -164,7 +208,10 @@ namespace iRacingMock.ClassLibrary
 
         public ITelemetryValue<float> Voltage {get; set;}
 
-        public ITelemetryValue<double> SessionTimeRemain {get; set;}
+        public ITelemetryValue<double> SessionTimeRemain {
+            get { return new MockTelemetryValue<double>() { Value = Convert.ToDouble(_telemetryInfos[_count][nameof(SessionTimeRemain)]) }; }
+            set { }
+        }
 
         public ITelemetryValue<int> ReplayFrameNumEnd {get; set;}
 

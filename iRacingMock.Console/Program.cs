@@ -11,14 +11,12 @@ namespace iRacingMock.Console
         static object _lock = new object();
 
         static void Main(string[] args)
-        {            
-
-            //Parser.Default.ParseArguments<Options>(args)
-            //       .WithParsed<Options>(o =>
-            //       {
-            //           var file = File.ReadAllLines(o.Input);
-            //           new Mock(file).Start();
-            //       });
+        {        
+            Parser.Default.ParseArguments<Options>(args)
+                   .WithParsed<Options>(o =>
+                   {                       
+                       new Mock(o.Input).Start();
+                   });
         }
     }
 }
